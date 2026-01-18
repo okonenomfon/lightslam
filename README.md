@@ -1,12 +1,48 @@
-### Overview:
-This project is a lightweight C++ implementation of a Monocular Visual Odometry system. It takes a raw video feed from a single camera and reconstructs the 3D trajectory of the camera's movement in real-time. Unlike basic demos that rely solely on OpenCV's high-level APIs, this project implements the core mathematical optimization pipeline using Eigen and Ceres Solver.
+# LightSLAM: Monocular Visual Odometry System
 
-### Key Technical Features
-1. Front-End (Tracking): Uses the Lucas-Kanade algorithm (Optical Flow) to track robust "Good Features to Track" (Shi-Tomasi corners) across frames. This avoids the computational overhead of re-detecting features every frame.
-2. Initialization: Handles monocular initialization by decomposing the Essential Matrix ($E = t^\wedge R$) to recover the initial rotation and translation.
-3. Back-End (Optimization): Implements a custom Cost Functor in Ceres Solver. The system performs local bundle adjustment, refining the estimated pose ($R, t$) by minimizing the geometric reprojection error of triangulated 3D points.
-4. Memory Management: rigorous management of feature lifecycles; automatically pruning outliers and replenishing features when the track count drops below a threshold to maintain system stability.
+**LightSLAM** is a lightweight, real-time Visual SLAM (Simultaneous Localization and Mapping) system written in modern C++ (C++17). It estimates the 6-DoF trajectory of a monocular camera by tracking features and optimizing geometry without reliance on external sensors like IMUs or GPS.
 
-### Build System
-1. Managed via CMake for cross-platform compatibility.
-2. Dependencies (OpenCV, Eigen, Ceres) handled strictly via vcpkg to ensure reproducible builds.
+## Key Features
+* **Sparse Optical Flow Tracking:** Utilizes Lucas-Kanade (LK) flow to track Shi-Tomasi features across temporal frames, reducing computational load compared to frame-by-frame matching.
+* **Geometric Initialization:** Decomposes the Essential Matrix to recover initial camera pose (Rotation/Translation) using Nistér’s 5-point algorithm.
+* **Motion-Only Bundle Adjustment:** Integrates **Ceres Solver** to minimize reprojection error, refining the estimated trajectory in real-time.
+* **High Performance:** Optimized matrix operations using **Eigen3** and a custom memory-efficient pipeline.
+
+## Tech Stack
+* **Language:** C++
+* **Computer Vision:** OpenCV
+* **Linear Algebra:** Eigen3
+* **Optimization:** Ceres Solver
+* **Build System:** CMake & Vcpkg
+
+## How to Build (Windows/Linux)
+This project uses **vcpkg** for dependency management to ensure a smooth build process.
+
+### Prerequisites
+* CMake
+* Visual Studio 2019/2022 (Windows) or GCC (Linux)
+* [vcpkg](https://github.com/microsoft/vcpkg)
+
+### Build Instructions
+# 1. Clone the repository
+git clone [https://github.com/okonenomfon/LightSLAM.git](https://github.com/okonenomfon/LightSLAM.git)
+cd LightSLAM
+
+# 2. Create build directory
+mkdir build && cd build
+
+# 3. Configure (Point to your vcpkg toolchain)
+cmake .. -DCMAKE_TOOLCHAIN_FILE=[path_to_vcpkg]/scripts/buildsystems/vcpkg.cmake
+
+# 4. Build
+cmake --build . --config Release
+
+### Usage
+Run the executable from the build directory. Ensure a webcam is connected.
+
+./Debug/LightSLAM.exe
+# Window 1: 
+Shows the live camera feed with tracked feature points (Green).
+
+# Window 2: 
+Displays the real-time estimated trajectory (Red).
